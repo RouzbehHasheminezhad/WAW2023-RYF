@@ -3,7 +3,7 @@
 **Authors:** Rouzbeh Hasheminezhad, August Bøgh Rønberg, Ulrik Brandes
 
 ## Code Release
-The code will be released no later than Friday, May 26, 2023.
+The code is currently being revised, and will be publicly available no later than Friday, May 26, 2023.
 
 ## Contact
 If you have any questions, please contact [Rouzbeh Hasheminezhad](mailto:shashemi@ethz.ch).
