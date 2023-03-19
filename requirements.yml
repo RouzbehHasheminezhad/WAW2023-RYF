@@ -6,10 +6,10 @@ dependencies:
   - python=3.9
   - graph-tool
   - pandas
-  #- jupyter
-  - openpyxl
-  - xlrd
   - requests
+  - tqdm
+  - xlrd
+  - pip 
   - pip:
       - rarfile==4.0
       - unrar==0.4
