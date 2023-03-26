@@ -1,0 +1,12 @@
+name: WAW
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.9
+  - graph-tool
+  - pip
+  - pip:
+      - ipyparallel
+      - numba-scipy
+      - seaborn
