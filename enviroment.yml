@@ -4,9 +4,9 @@ channels:
   - conda-forge
 dependencies:
   - python=3.9
-  - graph-tool
+  - graph-tool-base
+  - numba
+  - mpi4py
   - pip
   - pip:
       - ipyparallel
-      - numba-scipy
-      - seaborn

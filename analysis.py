@@ -1,4 +1,5 @@
 import shutil
+import warnings
 import numpy as np
 import pickle
 import ipyparallel as ipp
@@ -24,7 +25,10 @@ def run_analysis():
     #result = process_map(pre_process, nets, max_workers=n_engines, desc="preprocessing", chunksize=1)
     n_engines = get_num_engines()
     cluster = ipp.Cluster(
-        n=n_engines
+        n=n_engines,
+        controller_ip="*",
+        engine_launcher_class="MPI",
+        location="server.local",
     )
     cluster.start_cluster_sync()
     client = cluster.connect_client_sync()
@@ -218,4 +222,6 @@ if __name__ == '__main__':
     # The following logs all the above initial parameters for the analysis so that the results can be replicated.
     log_initial_parameters()
     # The following runs the analysis.
-    run_analysis()
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore")
+        run_analysis()
