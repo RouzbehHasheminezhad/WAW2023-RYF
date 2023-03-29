@@ -201,13 +201,13 @@ def run_analysis():
 
 
 if __name__ == '__main__':
-    # This sets the meta-seed for the randomness in the analysis.
+    # The following sets the meta-seed for the randomness in the analysis.
     set_seed(0)
-    # The following set the minimum number of vertices and edges required for each empirical network after preprocessing to qualify for analysis.
+    # The following sets the minimum number of vertices and edges required for each empirical network after preprocessing to qualify for analysis.
     set_cut_off(1000, 1000)
     # The following sets the number of size-matching random networks compared to each empirical network to evaluate its relative robustness.
     set_num_sampled_random_graphs(10)
-    # Set the number of CPU cores to use. By default, all CPU cores are used.
+    # The following sets the number of CPU cores to use. By default, all CPU cores are used.
     set_num_engines()
     # The following sets the working directory where the analysis is performed, and the corresponding results are temporarily saved.
     set_working_dir(os.getcwd() + "/")
