@@ -20,10 +20,11 @@ global num_engines
 # used. If -1 is passed as an argument, then all available cores will be used.
 def set_num_engines(n_engines):
     global num_engines
-    if n_engines == -1:
-        num_engines = os.cpu_count()
-    else:
+    max = os.cpu_count()
+    if n_engines >= 1 and n_engines <= max:
         num_engines = n_engines
+    else:
+        num_engines = max
 
 # # get_num_engines() return the 
 # def get_num_engines():
@@ -31,8 +32,8 @@ def set_num_engines(n_engines):
 #     return num_engines
 
 # process_map(func, args, desc) is a wrapper function that imports and calls
-# the tqdm.contrib.concurrent process_map function on the arguments 'func', 'args',
-# and 'desc'.
+# the tqdm.contrib.concurrent process_map function on the arguments 'func',
+# 'args', and 'desc'.
 def process_map(func, args, desc):
     from tqdm.contrib.concurrent import process_map
     return process_map(func, args, desc=desc, max_workers=num_engines)
@@ -49,7 +50,7 @@ def listdir(addr):
     return res
 
 # mkdir(addr, wipe=True) creates a new directory and takes two arguments. 'addr'
-# specifies the path to where the new directory should be addded and its name.
+# specifies the path to where the new directory should be added and its name.
 # 'wipe' is boolean which if True deletes any directory and its contents with
 # address 'addr', should it exist, and if False does nothing in this case.
 # 'wipe' is True by default.
@@ -66,8 +67,8 @@ def mkdir(addr, wipe=True):
     except Exception as exc:
         print(exc)
 
-# decompress((read_addr, write_addr)) decompresses the file located at 'read_addr'
-# and stores the result in 'write_addr'. The function is capable of
+# decompress((read_addr, write_addr)) decompresses the file located at
+# 'read_addr' and stores the result in 'write_addr'. The function is capable of
 # decompressing files of type .tar.gz, .tar.bz2, .zip, .gz, and .rar.
 def decompress(args):
     read_addr, write_addr = args
@@ -129,7 +130,7 @@ def transfer_edges(edges_list):
 # snap_to_gt((snap_name, cat, f_read_addr)) reads the snap network stored at
 # 'f_read_addr', adapts it to the graph-tool format and saves it using the
 # 'snap_name'. The function returns a tuple containing the name of the network
-# along with the path to the locatin where it is stored.
+# along with the path to the location where it is stored.
 def snap_to_gt(args):
     snap_name, cat, f_read_addr = args
     g = gt.Graph(directed=False)
@@ -157,7 +158,7 @@ def download(args):
 # networks to be collected in 'df_konect' and then respectively downloads,
 # decompresses, and formats them in parallel. The function returns a list of
 # tuples containing the names of the networks along with the paths to the
-# locatins where they are stored.
+# locations where they are stored.
 def collect_konect(df_konect):
     addr_raw = os.getcwd() + "/konect_raw/"
     addr_decompressed = os.getcwd() + "/konect_decompressed/"
@@ -193,9 +194,9 @@ def netzschleuder_helper(arg):
 
 # collect_netzschleuder(df_netzschleuder) takes a dataframe containing the names
 # of all Netzschleuder networks to be collected in 'df_netzschleuder' and then
-# collects them in paralle using the netzschleuder_helper(arg) function. The
+# collects them in parallel using the netzschleuder_helper(arg) function. The
 # function returns a list of tuples containing the names of the networks along
-# with the paths to the locatins where they are stored.
+# with the paths to the locations where they are stored.
 def collect_netzschleuder(df_netzschleuder):
     addr_netzschleuder = os.getcwd() + "/netzschleuder/"
     mkdir(addr_netzschleuder)
@@ -215,7 +216,7 @@ def collect_netzschleuder(df_netzschleuder):
 # networks to be collected in 'df_snap' and then respectively downloads,
 # decompresses, and formats them in parallel. The function returns a list of
 # tuples containing the names of the networks along with the paths to the
-# locatins where they are stored.
+# locations where they are stored.
 def collect_snap(df_snap):
     name_cat_map = dict(zip(df_snap["Name"], df_snap["Category"]))
     addr_snap_raw = os.getcwd() + "/snap_raw/"
@@ -257,7 +258,7 @@ def collect_snap(df_snap):
 # icon_fb_to_gt((icon_name, addr_write, add_read)) loads the Facebook100 network
 # located in 'add_read', adapts it to the graph-tool format and saves it using
 # the 'saving_name'. The function returns a tuple containing the name of the
-# network along with the path to the locatin where it is stored.
+# network along with the path to the location where it is stored.
 def icon_fb_to_gt(args):
     icon_name, addr_write, add_read = args
     A = scipy.io.loadmat(os.path.join(add_read))["A"].tocsr().astype(bool)
@@ -273,7 +274,7 @@ def icon_fb_to_gt(args):
 # collect_fb(addr_icon, args_fb) collects all the Facebook100 networks listed in
 # 'args_fb' in parallel using the icon_fb_to_gt() function and returns a list of
 # tuples containing the names of the networks along with the paths to the
-# locatins where they are stored.
+# locations where they are stored.
 def collect_fb(addr_icon, args_fb):
     raw_dir = addr_icon + "fb_raw/"
     decompressed_dir = addr_icon + "fb_decompressed/"
@@ -317,7 +318,7 @@ def find_skip(file_path):
 # loads the ICON networks with assorted sources located in 'add_read', adapts it
 # to the graph-tool format and saves it using the 'saving_name'. The function
 # returns a tuple containing the name of the network along with the path to the
-# locatin where it is stored. 
+# location where it is stored. 
 def icon_rest_to_gt(args):
     saving_name, icon_name, add_read, category, network, subnetwork = args
     g = gt.Graph(directed=False)
@@ -364,7 +365,7 @@ def icon_rest_to_gt(args):
 # 'addr_icon_raw'. The function then decompresses the network if necessary and
 # calls icon_rest_to_gt() in parallel to format the network to the graph-tool
 # format. The function returns a tuple containing the name of the network along
-# with the path to the locatin where it is stored. 
+# with the path to the location where it is stored. 
 def icon_helper(args):
     net_url_map = {
         "AMiner scientific collaborations (2009)/AMiner DatabaseSys sub0 coauthors": (
@@ -429,7 +430,7 @@ def icon_helper(args):
 # networks to be collected in 'df_icon' and then calls collect_fb() and
 # icon_helper() to collect and format the networks. The function returns a list
 # of tuples containing the names of the networks along with the paths to the
-# locatins where they are stored.
+# locations where they are stored.
 def collect_icon(df_icon):
     addr_icon = os.getcwd() + "/icon/"
     addr_icon_raw = addr_icon + "raw/"
@@ -453,9 +454,9 @@ def collect_icon(df_icon):
 # run_collection() is the main function in charge of collecting all networks
 # which it does by reading what networks to collect in
 # "networks_spreadsheet.csv" and calling the functions for collecting networks
-# from each of the four main sources: KONECT, Netschleuder, SNAP, and ICON. The
+# from each of the four main sources: KONECT, Netzschleuder, SNAP, and ICON. The
 # function returns a list of tuples containing the names of the networks along
-# with the paths to the locatins where they are stored. 
+# with the paths to the locations where they are stored. 
 def run_collection():
     df = pd.read_csv("networks_spreadsheet.csv", delimiter=";")
     collected = []

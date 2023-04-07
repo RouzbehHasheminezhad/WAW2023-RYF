@@ -1,18 +1,21 @@
 import logging
+import os
+import shutil
 from engine.config.config import *
 
-# The following function lists the network categories given the dataset directory.
+# get_categories(data_dir) lists the network categories in 'data_dir'.
 def get_categories(data_dir):
     base_path = data_dir
     result_list = []
     for category_name in os.listdir(base_path):
-        if category_name == "__MACOSX" or category_name == "nets.pkl":
+        if category_name == "__MACOSX" or category_name == "nets.pkl" or category_name == ".DS_Store":
             continue
         result_list.append(category_name)
     return result_list
 
-
-# The following function lists the subcategories corresponding to a given network category, given the dataset's directory and the network category.
+# get_subcategories(data_dir, category) lists the subcategories in a category
+# given the dataset's directory, 'data_dir', and the network category
+# 'category'. 
 def get_subcategories(data_dir, category):
     result_list = []
     base_path = data_dir + category
@@ -22,72 +25,75 @@ def get_subcategories(data_dir, category):
         result_list.append(subcategory_name)
     return result_list
 
-
-# Given the dataset's directory as well as the network category and subcategory, the following list the corresponding networks.
+# get_networks(data_dir, category, subcategory) lists the networks in a
+# subcategory given the dataset's directory, 'data_dir', the network category
+# 'category', and the subcategory "subcategory".
 def get_networks(data_dir, category, subcategory):
     result_list = []
-    base_path = data_dir + category + "/" + subcategory
+    base_path = os.path.join(data_dir + category, subcategory)
     for network_name in os.listdir(base_path):
         if network_name == ".DS_Store":
             continue
         result_list.append(network_name)
     return result_list
 
-
-# For a given that dataset's directory and a network in a specific subcategory and category, the following lists the corresponding subcategories.
+# get_subnetworks(data_dir, category, subcategory, network) lists the
+# subnetworks of a network given the dataset's directory, 'data_dir', the
+# network category 'category', the subcategory "subcategory", and the network
+# name 'network'.
 def get_subnetworks(data_dir, category, subcategory, network):
     result_list = []
-    network_path = data_dir + category + "/" + subcategory + "/" + network
+    network_path = os.path.join(data_dir + category, subcategory, network)
     for subnetwork_name in os.listdir(network_path):
         if subnetwork_name == ".DS_Store":
             continue
         result_list.append(subnetwork_name)
     return result_list
 
-
-# The following function loads the preprocessed version of a graph, given an argument list containing the:
-# dataset's directory, the network's: category, subcategory, network, and subnetwork.
+# load_graph(args) loads the preprocessed version of a graph, given an argument
+# list 'args' containing the: dataset's directory, the network's: category,
+# subcategory, network, and subnetwork.
 def load_graph(args):
-    import graph_tool.all as gt
+    from graph_tool import load_graph
     data_dir, category, subcategory, network, subnetwork = args[0], args[1], args[2], args[3], args[4]
-    pre_processed_file = data_dir + category + "/" + subcategory + "/" + network + "/" + subnetwork + "/Graph-Data/preprocessed/" + subnetwork + ".gt"
-    return gt.load_graph(pre_processed_file)
+    pre_processed_file = os.path.join(data_dir + category, subcategory, network, subnetwork,
+                                       "Graph-Data", "preprocessed", subnetwork + ".gt")
+    return load_graph(pre_processed_file)
 
-
-# The following function preprocess a given empirical network.
+# pre_process([data_dir, category, subcategory, network, subnetwork])
+# preprocesses an empirical network given its descriptors 'args'.
 def pre_process(args):
-    import graph_tool.all as gt
-    import os
-    try:
-        # As arguments of the function the directory of the datasets, the network's: category, subcategory, network, subnetwork information are mentioned.
-        data_dir, category, subcategory, network, subnetwork = args[0], args[1], args[2], args[3], args[4]
-        base = data_dir + category + "/" + subcategory + "/" + network + "/" + subnetwork + "/"
-        file = base + "Graph-Data/" + subnetwork + ".gt"
-        pre_processed_base = base + "Graph-Data/preprocessed/"
-        pre_processed_file = pre_processed_base + subnetwork + ".gt"
+    from graph_tool import load_graph
+    from graph_tool.generation import remove_self_loops, remove_parallel_edges
+    from graph_tool.topology import extract_largest_component
+    # As arguments of the function the directory of the datasets, the network's:
+    # category, subcategory, network, subnetwork information are mentioned. 
+    data_dir, category, subcategory, network, subnetwork = args[0], args[1], args[2], args[3], args[4]
+    base = os.path.join(data_dir + category, subcategory, network, subnetwork)
+    file = os.path.join(base, "Graph-Data", subnetwork + ".gt")
+    pre_processed_base = os.path.join(base, "Graph-Data", "preprocessed")
+    pre_processed_file = os.path.join(pre_processed_base, subnetwork + ".gt")
 
-        os.mkdir(pre_processed_base)
-        # The preprocessing removes self-loops and parallel edges, finally discarding anything not in the largest connected component.
-        g = gt.load_graph(file)
-        gt.remove_self_loops(g)
-        gt.remove_parallel_edges(g)
-        gt.extract_largest_component(g, prune=True).save(pre_processed_file, fmt="gt")
-        return (0,) + args
-    except Exception as e:
-        raise e
-#        return (1,) + args
+    os.mkdir(pre_processed_base)
+    # The preprocessing removes self-loops and parallel edges, finally
+    # discarding anything not in the largest connected component.
+    g = load_graph(file)
+    remove_self_loops(g)
+    remove_parallel_edges(g)
+    extract_largest_component(g, prune=True).save(pre_processed_file, fmt="gt")
+    return (0,) + args
 
 
-# The following resets the logger currently at use, to be able to start a new logging procedure.
+# reset_logger() resets the logger currently at use, to be able to start a new
+# logging procedure.  
 def reset_logger():
-    import logging
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
 
 
-# The following function re-configures the logger, sets a new logging file, and fixes the formatting style.
+# set_logger(file_name) re-configures the logger, sets the formatting style, and
+# a new logging file, 'file_name'.
 def set_logger(file_name):
-    import logging
     from engine.config.config import get_log_dir
     reset_logger()
     logging.basicConfig(filename=get_log_dir() + file_name,
@@ -97,8 +103,11 @@ def set_logger(file_name):
                         level=logging.INFO)
 
 
-# The following function creates a logging directory, and logs the initial parameter of the analysis there.
+# log_initial_parameters() creates a logging directory, and logs the initial
+# parameter of the analysis there.
 def log_initial_parameters():
+    if os.path.isdir(get_log_dir()):
+        shutil.rmtree(get_log_dir())
     os.mkdir(get_log_dir())
     set_logger("initial_params.log")
     logging.info("num_engines: %s", get_num_engines())
@@ -110,16 +119,21 @@ def log_initial_parameters():
     logging.info("seed: %s", get_seed())
     reset_logger()
 
-
-# Given a single value "val" and a group of values given in a list "arr", we compute the z-score to compare the single value to the group of values.
+# z_score(val, arr) computes the z-score to describe the relationship of the
+# single value, 'val', to the mean of the group of values, 'arr'. 
 def z_score(val, arr):
     import numpy as np
     return (np.sqrt(len(arr)) * (val - np.mean(arr))) / (np.sqrt(np.var(arr, ddof=0)))
 
 
-# The following function takes the fraction of removed vertices, and returns a list of tuples.
-# The first three elements of each tuple are z-scores comparing the robustness of an empirical network, identified uniquely by the last four elements of the tuple.
-# Each of the three z-score values reflects how the robustness of an empirical network compares to size-matching random graphs under: static/adaptive targeted attack
+# compute_z_score(beta) computes for each network from the collection stored in
+# get_data_dir() three z-scores when the fraction 0 <= 'beta' <= 1 of the
+# vertices are removed from the network. It returns a list of tuples where each
+# tuple corresponds to a network from the collection. The first three elements
+# of each tuple are z-scores comparing the robustness of an empirical network,
+# identified uniquely by the last four elements of the tuple. Each of the three
+# z-score values reflects how the robustness of an empirical network compares to
+# size-matching random graphs under: static/adaptive targeted attack.
 def compute_z_score(beta):
     import pickle
     index = int(beta * 100) - 1
