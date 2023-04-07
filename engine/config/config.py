@@ -8,9 +8,15 @@ global vertex_cut_off, edge_cut_off
 global seed
 
 
-def set_num_engines():
+# set_num_engines(n_engines) takes as an argument the amount of cores to be
+# used. If -1 is passed as an argument, then all available cores will be used.
+def set_num_engines(n_engines):
     global num_engines
-    num_engines = int(os.environ.get("SLURM_NTASKS", os.cpu_count()))
+    max = int(os.environ.get("SLURM_NTASKS", os.cpu_count()))
+    if n_engines >= 1 and n_engines <= max:
+        num_engines = n_engines
+    else:
+        num_engines = max
 
 
 def set_num_sampled_random_graphs(number_of_sampled_random_graphs):
