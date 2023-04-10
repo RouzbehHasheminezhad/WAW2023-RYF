@@ -16,13 +16,12 @@ def run_analysis():
     # preprocessing
     # --------------------------------------------------------------------------
     # The array 'nets' is created and filled with tuples indicating the
-    # network's: directory, category, subcategory, network and subnetwork. 
+    # network's: directory, category, network and subnetwork. 
     nets = []
     for category in get_categories(get_data_dir()):
-        for subcategory in get_subcategories(get_data_dir(), category):
-            for network in get_networks(get_data_dir(), category, subcategory):
-                for subnetwork in get_subnetworks(get_data_dir(), category, subcategory, network):
-                    nets.append((get_data_dir(), category, subcategory, network, subnetwork))
+        for network in get_networks(get_data_dir(), category):
+            for subnetwork in get_subnetworks(get_data_dir(), category, network):
+                nets.append((get_data_dir(), category, network, subnetwork))
     # We preprocess the networks in parallel, and log if any preprocessing step
     # failed. 
     n_engines = get_num_engines()
@@ -42,7 +41,7 @@ def run_analysis():
     set_logger("preprocessing.log")
     logging.info(
         "The format is: "
-        "Category, Subcategory, Network Dataset, Network")
+        "Category, Network Dataset, Network")
     for args in result:
         if args[0] == 0:
             logging.info("Finished the preprocessing of: %s", args[2:])
@@ -70,8 +69,8 @@ def run_analysis():
     # random graph, the number of vertices (n) in the random graph, the number
     # of edges (m) in the random graph, and the random seed. 
     args = []
-    for (data_dir, category, subcategory, network, subnetwork, n, m) in nets:
-        random_net_dir = os.path.join(data_dir + category, subcategory, network, subnetwork, "Graph-Data", "random-nets/")
+    for (data_dir, category, network, subnetwork, n, m) in nets:
+        random_net_dir = os.path.join(data_dir + category, network, subnetwork, "Graph-Data", "random-nets/")
         os.mkdir(random_net_dir)
         args.extend(
             [(data_dir, random_net_dir, n, m, rs.integers(low=0, high=np.iinfo(np.int64).max)) for _ in
@@ -83,7 +82,7 @@ def run_analysis():
     set_logger("random_network_generation.log")
     logging.info(
         "The format is: "
-        "Category, Subcategory, Network Dataset, Network, "
+        "Category, Network Dataset, Network, "
         "Number of Vertices (of the random graph), Number of Edges (of the random graph), Seed (for randomization)")
     for args in result:
         if args[0] == 0:
@@ -95,8 +94,8 @@ def run_analysis():
     # If for an empirical network the required number of size-matching random networks could not be generated, we discard it from analysis.
     updated_nets = []
     for net in nets:
-        data_dir, category, subcategory, network, subnetwork, n, m = net
-        random_net_dir = os.path.join(get_data_dir() + category, subcategory, network, subnetwork, "Graph-Data", "random-nets/")
+        data_dir, category, network, subnetwork, n, m = net
+        random_net_dir = os.path.join(get_data_dir() + category, network, subnetwork, "Graph-Data", "random-nets/")
         if len(os.listdir(random_net_dir)) == get_num_sampled_random_graphs():
             updated_nets.append(net)
     nets = updated_nets
@@ -112,8 +111,8 @@ def run_analysis():
     # vertex removal strategies to, the random seed, the file name used for saving
     # the robustness score, and the directory where all the datasets are saved. 
     args = []
-    for (data_dir, category, subcategory, network, subnetwork, n, m) in nets:
-        base = os.path.join(data_dir + category, subcategory, network, subnetwork) + "/"
+    for (data_dir, category, network, subnetwork, n, m) in nets:
+        base = os.path.join(data_dir + category, network, subnetwork) + "/"
         robustness_score_dirs = [base + "Robustness-Score-Data/" + "static-targeted-attack/",
                                  base + "Robustness-Score-Data/" + "adaptive-targeted-attack/",
                                  base + "Robustness-Score-Data/" + "random-failure/"]
@@ -135,7 +134,7 @@ def run_analysis():
     set_logger("compute_robustness_score.log")
     logging.info(
         "The format is: "
-        """Category, Subcategory, Network Dataset, Network, Seed (for
+        """Category, Network Dataset, Network, Seed (for
         randomization/tie-breaking), Index (0 corresponds to the original
         network, >0 corresponds to the index in the size-matching random graph baseline)""")
     for args in result:
@@ -150,8 +149,8 @@ def run_analysis():
     # different vertex removal strategies are saved. However, we combine all the
     # information regarding robustness of the empirical networks and the
     # size-matching random graphs in a "scores.pkl" pickle file. 
-    for (data_dir, category, subcategory, network, subnetwork, n, m) in nets:
-        base = os.path.join(data_dir + category, subcategory, network, subnetwork) + "/"
+    for (data_dir, category, network, subnetwork, n, m) in nets:
+        base = os.path.join(data_dir + category, network, subnetwork) + "/"
 
         shutil.rmtree(base + "Graph-Data/" + "random-nets/")
 
@@ -209,14 +208,13 @@ def run_analysis():
     # recursively. After the above step, the datasets folder contains only the
     # empirical networks for which the robustness and scale-freeness analysis is
     # complete and their scores.
-    nets = set([(x[0], x[1], x[2], x[3], x[4]) for x in nets])
+    nets = set([(x[0], x[1], x[2], x[3]) for x in nets])
     for category in get_categories(get_data_dir()):
-        for subcategory in get_subcategories(get_data_dir(), category):
-            for network in get_networks(get_data_dir(), category, subcategory):
-                for subnetwork in get_subnetworks(get_data_dir(), category, subcategory, network):
-                    if not (get_data_dir(), category, subcategory, network, subnetwork) in nets:
-                        shutil.rmtree(
-                            os.path.join(get_data_dir(), category, subcategory, network, subnetwork) + "/")
+        for network in get_networks(get_data_dir(), category):
+            for subnetwork in get_subnetworks(get_data_dir(), category, network):
+                if not (get_data_dir(), category, network, subnetwork) in nets:
+                    shutil.rmtree(
+                        os.path.join(get_data_dir(), category, network, subnetwork) + "/")
     remove_empty_folders(get_data_dir())
     shutil.move(get_data_dir(), get_permanent_dir() + "datasets/")
     shutil.move(get_log_dir(), get_permanent_dir() + "logs/")

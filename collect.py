@@ -143,16 +143,21 @@ def snap_to_gt(args):
     return ("SNAP", network, subnetwork, cat, os.getcwd() + "/snap/" + network + "/" + subnetwork + ".gt")
 
 # download((url, f_name)) downloads the 'url' and stores the content in a file
-# named by 'f_name'.
+# named by 'f_name'. If the download is successful, 
 def download(args):
     url, f_name = args
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        with requests.get(url, stream=True, verify=False) as r:
-            r.raise_for_status()
-            with open(f_name, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=1 << 20):
-                    f.write(chunk)
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            with requests.get(url, stream=True, verify=False) as r:
+                r.raise_for_status()
+                with open(f_name, 'wb') as f:
+                    for chunk in r.iter_content(chunk_size=1 << 20):
+                        f.write(chunk)
+        return True
+    except:
+        print("couldn't download file: " + f_name)
+        return False
 
 # collect_konect(df_konect) takes a dataframe containing the names of all KONECT
 # networks to be collected in 'df_konect' and then respectively downloads,
@@ -282,7 +287,11 @@ def collect_fb(addr_icon, args_fb):
     mkdir(raw_dir)
     mkdir(decompressed_dir)
     mkdir(write_dir)
-    download(("https://archive.org/download/oxford-2005-facebook-matrix/facebook100.zip", raw_dir + "facebook.zip"))
+    if not download(("https://archive.org/download/oxford-2005-facebook-matrix/facebook100.zip", raw_dir + "facebook.zip")):
+        print("Unable to download Facebook100 networks")
+        shutil.rmtree(raw_dir)
+        shutil.rmtree(decompressed_dir)
+        return None
     decompress((raw_dir + "facebook.zip", decompressed_dir))
     args = [(arg, addr_icon + "Facebook100/" + arg + ".gt",
              decompressed_dir + "facebook100/" + (arg if arg != "Wash U32" else "WashU32") + ".mat") for arg in args_fb]
@@ -411,7 +420,8 @@ def icon_helper(args):
         mkdir(addr_icon + network, wipe=False)
 
         f_name = addr_icon_raw + net_url_map[x][0].split("/")[-1]
-        download((net_url_map[x][0], f_name))
+        if not download((net_url_map[x][0], f_name)):
+            shutil.rmtree(addr_icon + network)
 
         if len(net_url_map[x]) > 1:
             try:
@@ -488,7 +498,7 @@ def process(args):
 # networks and deletes the old locations of the networks once they have been
 # copied to their final locations.
 def prepare_dataset(args):
-    dataset_dir = os.getcwd() + "/dataset/"
+    dataset_dir = os.getcwd() + "/datasets/"
     mkdir(dataset_dir)
     process_map(process, [(dataset_dir,) + arg for arg in args], desc="preparing dataset")
     shutil.rmtree(os.getcwd() + "/icon/")
