@@ -52,7 +52,7 @@ def scatter_plot(scores, categories, is_adaptive=True):
             new_labels.append("Auxiliary")
         else:
             new_labels.append(label)
-    indices = [1, 0, 2, 4, 3]
+    indices = [1, 0, 3, 2]
     new_labels = [new_labels[ind] for ind in indices]
     handles = handles[:len(set(h))]
     handles = [handles[ind] for ind in indices]
@@ -156,7 +156,7 @@ def bar_plot():
     import matplotlib
     import matplotlib.patches as mpatches
     from matplotlib import pyplot as plt
-    from engine.utils.io import get_categories, get_subcategories, get_networks, get_subnetworks
+    from engine.utils.io import get_categories, get_networks, get_subnetworks
     from engine.config.config import get_working_dir, get_data_dir
     # Set the font size and style, hatching density, and width of each bar in
     # the bar plot.
@@ -196,28 +196,27 @@ def bar_plot():
     other = 0
     data_dir = get_data_dir()
     for category in get_categories(data_dir):
-        for subcategory in get_subcategories(data_dir, category):
-            for network in get_networks(data_dir, category, subcategory):
-                for _ in get_subnetworks(data_dir, category, subcategory, network):
-                    if category == "Technological":
-                        if network == "route_views":
-                            route_views += 1
-                        else:
-                            tech_other += 1
-                    if category == "Social":
-                        if network == "Facebook100":
-                            facebook += 1
-                        else:
-                            social_other += 1
-                    if category == "Biological":
-                        if network == "kegg_metabolic":
-                            kegg += 1
-                        else:
-                            bio_other += 1
-                    if category == "Infrastructure":
-                        transport += 1
-                    if category == "Other":
-                        other += 1
+        for network in get_networks(data_dir, category):
+            for _ in get_subnetworks(data_dir, category, network):
+                if category == "Technological":
+                    if network == "route_views":
+                        route_views += 1
+                    else:
+                        tech_other += 1
+                if category == "Social":
+                    if network == "Facebook100":
+                        facebook += 1
+                    else:
+                        social_other += 1
+                if category == "Biological":
+                    if network == "kegg_metabolic":
+                        kegg += 1
+                    else:
+                        bio_other += 1
+                if category == "Infrastructure":
+                    transport += 1
+                if category == "Other":
+                    other += 1
 
     # These following tuples and proceeding temp scores are used to help overlay
     # the bar plots.
@@ -287,7 +286,7 @@ def draw_collins_yeast():
     from engine.utils.io import load_graph
     from engine.config.config import get_working_dir, get_data_dir
     # Load the graph.
-    args = (get_data_dir(), "Biological", "Protein-Protein interactions", "collins_yeast", "collins_yeast")
+    args = (get_data_dir(), "Biological", "collins_yeast", "collins_yeast")
     g = load_graph(args)
     # Create vertex property maps capturing respectively the position of the
     # vertices and vertex degrees.

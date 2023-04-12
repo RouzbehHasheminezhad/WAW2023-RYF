@@ -13,18 +13,6 @@ def get_categories(data_dir):
         result_list.append(category_name)
     return result_list
 
-# get_subcategories(data_dir, category) lists the subcategories in a category
-# given the dataset's directory, 'data_dir', and the network category
-# 'category'. 
-# def get_subcategories(data_dir, category):
-#     result_list = []
-#     base_path = data_dir + category
-#     for subcategory_name in os.listdir(base_path):
-#         if subcategory_name == ".DS_Store":
-#             continue
-#         result_list.append(subcategory_name)
-#     return result_list
-
 # get_networks(data_dir, category) lists the networks in a category given the
 # dataset's directory, 'data_dir' and the network category 'category'.
 def get_networks(data_dir, category):
