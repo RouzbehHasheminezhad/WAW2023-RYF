@@ -13,37 +13,23 @@ def get_categories(data_dir):
         result_list.append(category_name)
     return result_list
 
-# get_subcategories(data_dir, category) lists the subcategories in a category
-# given the dataset's directory, 'data_dir', and the network category
-# 'category'. 
-def get_subcategories(data_dir, category):
+# get_networks(data_dir, category) lists the networks in a category given the
+# dataset's directory, 'data_dir' and the network category 'category'.
+def get_networks(data_dir, category):
     result_list = []
-    base_path = data_dir + category
-    for subcategory_name in os.listdir(base_path):
-        if subcategory_name == ".DS_Store":
-            continue
-        result_list.append(subcategory_name)
-    return result_list
-
-# get_networks(data_dir, category, subcategory) lists the networks in a
-# subcategory given the dataset's directory, 'data_dir', the network category
-# 'category', and the subcategory "subcategory".
-def get_networks(data_dir, category, subcategory):
-    result_list = []
-    base_path = os.path.join(data_dir + category, subcategory)
+    base_path = os.path.join(data_dir + category)
     for network_name in os.listdir(base_path):
         if network_name == ".DS_Store":
             continue
         result_list.append(network_name)
     return result_list
 
-# get_subnetworks(data_dir, category, subcategory, network) lists the
-# subnetworks of a network given the dataset's directory, 'data_dir', the
-# network category 'category', the subcategory "subcategory", and the network
-# name 'network'.
-def get_subnetworks(data_dir, category, subcategory, network):
+# get_subnetworks(data_dir, category, network) lists the subnetworks of a
+# network given the dataset's directory, 'data_dir', the network category
+# 'category', and the network name 'network'.
+def get_subnetworks(data_dir, category, network):
     result_list = []
-    network_path = os.path.join(data_dir + category, subcategory, network)
+    network_path = os.path.join(data_dir + category, network)
     for subnetwork_name in os.listdir(network_path):
         if subnetwork_name == ".DS_Store":
             continue
@@ -52,24 +38,24 @@ def get_subnetworks(data_dir, category, subcategory, network):
 
 # load_graph(args) loads the preprocessed version of a graph, given an argument
 # list 'args' containing the: dataset's directory, the network's: category,
-# subcategory, network, and subnetwork.
+# network, and subnetwork. 
 def load_graph(args):
     from graph_tool import load_graph
-    data_dir, category, subcategory, network, subnetwork = args[0], args[1], args[2], args[3], args[4]
-    pre_processed_file = os.path.join(data_dir + category, subcategory, network, subnetwork,
+    data_dir, category, network, subnetwork = args[0], args[1], args[2], args[3]
+    pre_processed_file = os.path.join(data_dir + category, network, subnetwork,
                                        "Graph-Data", "preprocessed", subnetwork + ".gt")
     return load_graph(pre_processed_file)
 
-# pre_process([data_dir, category, subcategory, network, subnetwork])
+# pre_process([data_dir, category, network, subnetwork])
 # preprocesses an empirical network given its descriptors 'args'.
 def pre_process(args):
     from graph_tool import load_graph
     from graph_tool.generation import remove_self_loops, remove_parallel_edges
     from graph_tool.topology import extract_largest_component
     # As arguments of the function the directory of the datasets, the network's:
-    # category, subcategory, network, subnetwork information are mentioned. 
-    data_dir, category, subcategory, network, subnetwork = args[0], args[1], args[2], args[3], args[4]
-    base = os.path.join(data_dir + category, subcategory, network, subnetwork)
+    # category, network, subnetwork information are mentioned. 
+    data_dir, category, network, subnetwork = args[0], args[1], args[2], args[3]
+    base = os.path.join(data_dir + category, network, subnetwork)
     file = os.path.join(base, "Graph-Data", subnetwork + ".gt")
     pre_processed_base = os.path.join(base, "Graph-Data", "preprocessed")
     pre_processed_file = os.path.join(pre_processed_base, subnetwork + ".gt")
@@ -140,18 +126,17 @@ def compute_z_score(beta):
     points = []
     data_dir = get_data_dir()
     for category in get_categories(data_dir):
-        for subcategory in get_subcategories(data_dir, category):
-            for network in get_networks(data_dir, category, subcategory):
-                for subnetwork in get_subnetworks(data_dir, category, subcategory, network):
-                    file_dir = data_dir + category + "/" + subcategory + "/" + network + "/" + subnetwork + "/Robustness-Score-Data/scores.pkl"
-                    point = ()
-                    with open(file_dir, "rb") as f:
-                        scores = pickle.load(f)
-                        for removal_strategy in ["static-targeted-attack", "adaptive-targeted-attack",
-                                                 "random-failure"]:
-                            score_main = scores["main"][removal_strategy][index]
-                            score_baseline = [scores["baseline"][removal_strategy][i][index] for i in
-                                              range(len(scores["baseline"][removal_strategy]))]
-                            point = point + (z_score(score_main, score_baseline),)
-                    points.append(point + (category, subcategory, network, subnetwork))
+        for network in get_networks(data_dir, category):
+            for subnetwork in get_subnetworks(data_dir, category, network):
+                file_dir = data_dir + category + "/" + network + "/" + subnetwork + "/Robustness-Score-Data/scores.pkl"
+                point = ()
+                with open(file_dir, "rb") as f:
+                    scores = pickle.load(f)
+                    for removal_strategy in ["static-targeted-attack", "adaptive-targeted-attack",
+                                                "random-failure"]:
+                        score_main = scores["main"][removal_strategy][index]
+                        score_baseline = [scores["baseline"][removal_strategy][i][index] for i in
+                                            range(len(scores["baseline"][removal_strategy]))]
+                        point = point + (z_score(score_main, score_baseline),)
+                points.append(point + (category, network, subnetwork))
     return points
