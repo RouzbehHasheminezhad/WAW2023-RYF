@@ -16,7 +16,7 @@ if __name__ == '__main__':
     # targeted attack considered is respectively static and dynamic.
     for adaptive in [True, False]:
         scatter_plot(scores=compute_z_score(1.0),
-                     categories=["Technological", "Biological", "Other", "Infrastructure", "Social"],
+                     categories=["Technological", "Biological", "Auxiliary", "Transportation", "Social"],
                      is_adaptive=adaptive)
     # The following creates a visualization of the Collins yeast interactome
     # network as displayed in Figure 4. of the paper.

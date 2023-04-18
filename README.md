@@ -3,11 +3,10 @@
 **Authors**: Rouzbeh Hasheminezhad, August Bøgh Rønberg, Ulrik Brandes
 
 ## Setup (currently only available for GNU/Linux|MacOS)
-Clone this GitHub repository. If `conda` is not already installed, download and
-install [Miniconda](https://docs.conda.io/en/latest/miniconda.html#).\
+Confirm that a [LaTeX ](https://www.latex-project.org/get/) distribution is installed. It will be used in generating the figures of the paper.
 
-### Environment setup
-This step sets up the environment in which all the following steps will run. \
+Clone this GitHub repository. If `conda` is not already installed, download and
+install [Miniconda](https://docs.conda.io/en/latest/miniconda.html#).
 
 The following command creates a `conda` environment that includes required
 dependencies.
@@ -22,37 +21,36 @@ Activate the new `WAW` environment in `conda` before executing the following ste
 conda activate WAW
 ```
 
-### Collecting, formatting, and pre-processing networks
-In this step the networks from various repositories and other sources
-on the internet are collected, formatted and pre-processed.\
+### Collecting, formatting, and preprocessing networks
+The following script, collects networks from various online sources and formats them in a `datasets` directory. 
 
-The code runs in parallel on all cores, to specify the number of cores change
-`-1` to the desired `number_of_cores`.
+The script uses all available CPU cores. To specify the number of cores, replace -1 with the desired `number_of_cores`.
 
 ```
 python collect.py --cores -1
 ```
 
-After this finishes running a new directory 'datasets' will have been added to
-the repo containing all the networks.\
-
 ### Robustness analysis
-In this step the robustness of the networks are analyzed. \
+After running the following script, the `datasets` directory is updated to include the robustness scores for each network.
+
+The script uses all available CPU cores. To specify the number of cores, replace -1 with the desired `number_of_cores`.
+
 
 ```
-python analysis.py
+python analysis.py --cores -1
 ```
-
-After this finishes running the 'datasets' directory will have been modified to
-also contain the robustness scores for each network. \
-
+This script is resource-intensive for a personal computer.  To ease replication, we provide all robustness scores [**here**](https://polybox.ethz.ch/index.php/s/qymJQoRMYMYPAvN).
 ### Visualizations
-In this step the 4 figures used in the paper are generated using the collected
-and analyzed datasets from the previous steps.
-
+The following creates the directory `figures/` and generates the paper's figures there.
 ```
 python figures.py
 ```
+### Scalefreeness analysis
+TODO: refer to the two external repositories and explain why.
+## Citation
+```
+TODO: Add the BibTeX entry of the paper once it is published.
 
-After this finishes running a new directory 'figures' will have been added to
-the repo containing all the generated figures.\
+```
+## Contact
+In case you have questions, please contact [Rouzbeh Hasheminezhad](mailto:shashemi@ethz.ch) or [August Bøgh Rønberg](mailto:ronberga@ethz.ch).

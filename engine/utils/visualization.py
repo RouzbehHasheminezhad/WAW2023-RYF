@@ -18,9 +18,9 @@ def scatter_plot(scores, categories, is_adaptive=True):
     font = {'family': 'Sans', 'size': 27}
     matplotlib.rc('font', **font)
     plt.figure(figsize=(14, 14))
-    # plt.rc('text', usetex=True)
+    plt.rc('text', usetex=True)
     marker_size = 100
-    colors = dict(zip(["Technological", "Social", "Biological", "Infrastructure", "Other"],
+    colors = dict(zip(["Technological", "Social", "Biological", "Transportation", "Auxiliary"],
                       ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"]))
     # The following restricts the scatter points to those with the desired
     # categories.
@@ -44,19 +44,11 @@ def scatter_plot(scores, categories, is_adaptive=True):
     ax1.set_ylim(ymin=lower, ymax=upper * 3.5)
     # In the following lines we set the legend of the figure properly.
     handles, labels = ax1.get_legend_handles_labels()
-    new_labels = []
-    for label in labels[:len(set(h))]:
-        if label == "Infrastructure":
-            new_labels.append("Transportation")
-        elif label == "Other":
-            new_labels.append("Auxiliary")
-        else:
-            new_labels.append(label)
-    indices = [1, 0, 3, 2]
-    new_labels = [new_labels[ind] for ind in indices]
+    indices = [1, 0, 2, 3, 4]
+    labels = [labels[ind] for ind in indices]
     handles = handles[:len(set(h))]
     handles = [handles[ind] for ind in indices]
-    ax1.legend(handles=handles, labels=new_labels, bbox_to_anchor=(-0.17, -0.085), loc=2,
+    ax1.legend(handles=handles, labels=labels, bbox_to_anchor=(-0.17, -0.085), loc=2,
                ncol=len(categories),
                borderaxespad=0., markerscale=2, columnspacing=0.2)
     # Below, we set the labels of the x-axis and the y-axis in the main scatter plot.
@@ -163,7 +155,7 @@ def bar_plot():
     font = {'family': 'Sans', 'size': 28}
     matplotlib.rc('font', **font)
     matplotlib.rcParams['ytick.major.pad'] = 15
-    # plt.rc('text', usetex=True)
+    plt.rc('text', usetex=True)
     legend_scale = 2
     hatch_density = 1
     width = 0.7 
@@ -283,11 +275,9 @@ def bar_plot():
 # interactome network.
 def draw_collins_yeast():
     import graph_tool.all as gt
-    from engine.utils.io import load_graph
-    from engine.config.config import get_working_dir, get_data_dir
+    from engine.config.config import get_working_dir
     # Load the graph.
-    args = (get_data_dir(), "Biological", "collins_yeast", "collins_yeast")
-    g = load_graph(args)
+    g = gt.collection.ns["collins_yeast"]
     # Create vertex property maps capturing respectively the position of the
     # vertices and vertex degrees.
     pos = gt.sfdp_layout(g, epsilon=1e-12)
