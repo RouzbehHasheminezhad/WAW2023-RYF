@@ -39,8 +39,11 @@ the repo containing all the networks.\
 ### Robustness analysis
 In this step the robustness of the networks are analyzed. \
 
+The code runs in parallel on all cores, to specify the number of cores change
+`-1` to the desired `number_of_cores`.
+
 ```
-python analysis.py
+python analysis.py --cores -1
 ```
 
 After this finishes running the 'datasets' directory will have been modified to
