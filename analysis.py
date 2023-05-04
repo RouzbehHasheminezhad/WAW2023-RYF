@@ -1,3 +1,4 @@
+import argparse
 import shutil
 import warnings
 import numpy as np
@@ -220,7 +221,22 @@ def run_analysis():
     shutil.move(get_log_dir(), get_permanent_dir() + "logs/")
 
 
+# argument_checker(x) verifies that the user input specifying the amount of
+# cores to use for this script is valid and raises an error if it is not.
+def argument_checker(x):
+    num = int(x)
+    if num < 0 and num != -1:
+        raise argparse.ArgumentTypeError('invalid value!')
+    else:
+        return num
+
+
+
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--cores', type=argument_checker, required=True)
+    cli_input = parser.parse_args()
+    set_num_engines(cli_input.cores)
     # set_seed(init_seed) sets the meta-seed for the randomness in the analysis.
     set_seed(0)
     # set_cut_off(min_num_vertices, min_num_edges) sets the minimum number of
@@ -231,9 +247,6 @@ if __name__ == '__main__':
     # number of size-matching random networks compared to each empirical network
     # to evaluate its relative robustness.
     set_num_sampled_random_graphs(10)
-    # set_num_engines(n_engines) sets the number of CPU cores to use. By
-    # default, all CPU cores are used.
-    set_num_engines(-1)
     # set_working_dir(working_dir_path) sets the working directory where the
     # analysis is performed, and the corresponding results are temporarily
     # saved. For example:

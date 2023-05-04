@@ -36,6 +36,9 @@ After running the following script, the `datasets` directory is updated to inclu
 The script uses all available CPU cores. To specify the number of cores, replace -1 with the desired `number_of_cores`.
 
 
+The code runs in parallel on all cores, to specify the number of cores change
+`-1` to the desired `number_of_cores`.
+
 ```
 python analysis.py --cores -1
 ```
