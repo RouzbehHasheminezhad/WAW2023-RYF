@@ -17,6 +17,7 @@ def set_num_engines(n_engines):
         num_engines = n_engines
     else:
         num_engines = max
+    print("Using: " + str(num_engines) + " cores")
 
 
 def set_num_sampled_random_graphs(number_of_sampled_random_graphs):

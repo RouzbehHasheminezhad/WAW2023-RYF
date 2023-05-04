@@ -13,23 +13,9 @@ import pandas as pd
 import rarfile
 import requests
 import scipy
+from engine.config.config import set_num_engines
 
 global num_engines
-
-# set_num_engines(n_engines) takes as an argument the amount of cores to be
-# used. If -1 is passed as an argument, then all available cores will be used.
-def set_num_engines(n_engines):
-    global num_engines
-    max = os.cpu_count()
-    if n_engines >= 1 and n_engines <= max:
-        num_engines = n_engines
-    else:
-        num_engines = max
-
-# # get_num_engines() return the 
-# def get_num_engines():
-#     global num_engines
-#     return num_engines
 
 # process_map(func, args, desc) is a wrapper function that imports and calls
 # the tqdm.contrib.concurrent process_map function on the arguments 'func',
