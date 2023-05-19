@@ -63,7 +63,7 @@ We do not provide the code to run the scale-freeness analysis here as our code
 is a combination of copyrighted code from A. Broido et al. and Voitalov et al. all of which
 we modified to fit our use case. Their original code can however, be found at:
 [**Broido et al.**](https://github.com/adbroido/SFAnalysis) and 
-[**Voitalov et al.**](https://github.com/ivanvoitalov/tail-estimation).
+[**Voitalovet al.**](https://github.com/ivanvoitalov/tail-estimation).
 
 ## Citation
 If you use this script as a part of your research, we would be grateful if you
